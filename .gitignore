@@ -1,0 +1,7 @@
+# Background files for jetbrains
+.idea
+
+# Background files for notebooks
+.DS_Store
+.ipynb_checkpoints/
+
