@@ -15,6 +15,7 @@ pandas
 
 # Imports
 import pandas as pd
+import numpy as np
 from collections import Counter
 
 
@@ -47,21 +48,59 @@ class NaiveBayesClassifier(object):
         self._likelihoods = {}
 
     @staticmethod
+    def format_input(data, name):
+        """
+        Check an input (X or y) to see if it is in a correct format.
+
+
+        :param data: A 1D iterable (list, pd.DataFrame, series, etc), each
+                  entry is a specific document
+        :param name: <str>, the name of the data variable input (x or y)
+        :return: list<object>, the data as a list
+        """
+        val_error = ValueError(
+            name + ' data input is not in correct format. ' +
+            name + ' data must be 1-dimensional, and ' +
+            name + ' data can be a numpy array, matrix, pd.Series,'
+            'pd.DataFrame, or a list'
+        )
+        if (type(data) == pd.DataFrame) and (data.shape[0] == 1):
+            data = list(data.iloc[:, 0].values)
+        elif type(data) == pd.Series:
+            data = list(data.values)
+        elif (type(data) == np.matrix) and (data.shape[0] == 1):
+            data = list(data[:, 0])
+        elif type(data) == np.ndarray:
+            data = list(data)
+        elif type(data) == list:
+            pass
+        else:
+            raise val_error
+
+        return data
+
+    @staticmethod
     def check_inputs(x, y):
         """
         Check the inputs (X and y) to see if they are the same length,
         and are 1D.  Also will place X and y together.
 
-        :param x: A 1D iterable (list, pd.DataFrame, series), each
+        :param x: A 1D iterable (list, pd.DataFrame, series, etc), each
                   entry is a specific document
-        :param y: A 1D iterable (list, pd.DataFrame, series), each entry
+        :param y: A 1D iterable (list, pd.DataFrame, series, etc), each entry
                   is the class of a specific document, positionally
                   within the same order as X
 
         :return: pd.DataFrame, a formatted version of X with y appended
                  on as a second column
         """
-        return 0
+        # Check if x exists
+        x = NaiveBayesClassifier.format_input(x, 'X')
+        y = NaiveBayesClassifier.format_input(y, 'Y')
+
+        df = pd.DataFrame({'Documents': x, 'Class': y})
+
+        return df
 
     def develop_prior_dist(self, x_w_class):
         """
@@ -96,9 +135,9 @@ class NaiveBayesClassifier(object):
         """
         Train the Naive Bayes Classifier to the dataset provided.
 
-        :param x: A 1D iterable (list, pd.DataFrame, series), each
+        :param x: A 1D iterable (list, pd.DataFrame, series, etc), each
                   entry is a specific document
-        :param y: A 1D iterable (list, pd.DataFrame, series), each entry
+        :param y: A 1D iterable (list, pd.DataFrame, series, etc), each entry
                is the class of a specific document, positionally
                   within the same order as X
         """
