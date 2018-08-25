@@ -64,11 +64,11 @@ class NaiveBayesClassifier(object):
             name + ' data can be a numpy array, matrix, pd.Series,'
             'pd.DataFrame, or a list'
         )
-        if (type(data) == pd.DataFrame) and (data.shape[0] == 1):
+        if (type(data) == pd.DataFrame) and (data.shape[1] == 1):
             data = list(data.iloc[:, 0].values)
         elif type(data) == pd.Series:
             data = list(data.values)
-        elif (type(data) == np.matrix) and (data.shape[0] == 1):
+        elif (type(data) == np.matrix) and (data.shape[1] == 1):
             data = list(data[:, 0])
         elif type(data) == np.ndarray:
             data = list(data)
@@ -102,7 +102,7 @@ class NaiveBayesClassifier(object):
 
         return df
 
-    def develop_prior_dist(self, x_w_class):
+    def __develop_prior_dist(self, x_w_class):
         """
         Develop the prior probability distribution P(v_j) where
         v_j is a class.
@@ -115,8 +115,11 @@ class NaiveBayesClassifier(object):
             is the class each document belongs to.
         """
         self._prior_dist = Counter(x_w_class['Class'].values)
+        total = sum(self._prior_dist.values(), 0.0)
+        for k in self._prior_dist:
+            self._prior_dist[k] /= total
 
-    def develop_likelihood_dist(self, x_w_class):
+    def __develop_likelihood_dist(self, x_w_class):
         """
         Develop the likelihood distributions for each word within a
         class.
@@ -130,6 +133,9 @@ class NaiveBayesClassifier(object):
             all_docs_c = ' '.join(temp_df['Documents'].values)
             all_docs_c_split = all_docs_c.split(' ')
             self._likelihoods[c] = Counter(all_docs_c_split)
+            total = temp_df.shape[0]
+            for k in self._likelihoods[c]:
+                self._likelihoods[c][k] /= total
 
     def train(self, x, y):
         """
@@ -142,8 +148,24 @@ class NaiveBayesClassifier(object):
                   within the same order as X
         """
         x_clean = self.check_inputs(x, y)
-        self.develop_prior_dist(x_clean)
-        self.develop_likelihood_dist(x_clean)
+        self.__develop_prior_dist(x_clean)
+        self.__develop_likelihood_dist(x_clean)
+
+    def get_likelihood_dist(self):
+        """
+        Return the likelihood Counter
+
+        :return: dict<obj: dict<obj:int>>, the likelihood counter for each class
+        """
+        return self._likelihoods
+
+    def get_prior_dist(self):
+        """
+        Return the prior distribution counter
+
+        :return: dict<obj: int>, the prior prob counter
+        """
+        return self._prior_dist
 
     def predict(self, x):
         """
