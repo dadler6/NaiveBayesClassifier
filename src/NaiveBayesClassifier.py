@@ -16,6 +16,7 @@ pandas
 # Imports
 import pandas as pd
 import numpy as np
+import operator
 from collections import Counter
 
 
@@ -167,6 +168,22 @@ class NaiveBayesClassifier(object):
         """
         return self._prior_dist
 
+    def _predict_class(self, x):
+        """
+        Predict the class of the given training example
+
+        :param x: str, a training example
+        :return: object, the most likely class for x
+        """
+        prob_dict = dict(self._prior_dist)
+        # Find the posterior for each class
+        for prior in prob_dict:
+            for word in x.split(' '):
+                prob_dict[prior] *= self._likelihoods[prior][word]
+        # Get the max
+        print(prob_dict)
+        return max(prob_dict.items(), key=operator.itemgetter(1))[0]
+
     def predict(self, x):
         """
         Use the classifier to predict a specific class of a
@@ -177,4 +194,11 @@ class NaiveBayesClassifier(object):
         :return y: list<object>, each entry is a class belonging to
                    each entry in X
         """
-        pass
+        # Format the input
+        x = self.format_input(x, 'x_test')
+
+        # Go through each entry and predict classes
+        y = []
+        for data in x:
+            y.append(self._predict_class(data))
+        return y

@@ -216,7 +216,7 @@ def setup_training_data():
 
     return {
         'nb': nb,
-        'X_test': x_test
+        'x_test': x_test
     }
 
 
@@ -318,3 +318,24 @@ def test_training_likelihood_dist(setup_training_data):
 
     assert likelihood['yes']['true'] == true_true_yes
     assert likelihood['no']['true'] == true_true_no
+
+
+# noinspection 801,PyShadowingNames
+def test_predict(setup_training_data):
+    """
+    Test the training of the naive bayes classifier with the likelihood dist
+
+    :param setup_training_data: dict<str: obj>: Dictionary holding the
+        training data
+    """
+    # Get vars
+    nb = setup_training_data['nb']
+    x_test = setup_training_data['x_test']
+
+    # Predict
+    result_y = nb.predict(x_test)
+
+    # Test
+    true_y = ['no']
+
+    assert result_y == true_y
