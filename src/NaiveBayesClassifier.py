@@ -25,7 +25,7 @@ class NaiveBayesClassifier(object):
     Naive Bayes classifier object.  The object will be able to take
     a cleaned set of documents and classifications of those documents,
     and simply will use a Naive Bayes algorithm (applying bayes rule
-    with naive assumption of conditional independents of features between
+    with naive assumption of conditional independence of features between
     classes), to develop a way to classify new documents by calculating
     the new document's most likely class.
 
